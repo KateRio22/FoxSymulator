@@ -6,6 +6,7 @@ import '../langs/Language.dart';
 import '../langs/LanguagesTypes.dart';
 import 'Animals.dart';
 import 'Fox.dart';
+import '../inventory/Inventory.dart';
 
 class Fight {
   Animals atacker;
@@ -35,7 +36,8 @@ class Fight {
 
     if (winner is Fox) {
       loser.acctualHp = loser.maxHp;
-      lootMeesage(doLoot(winner, loser));
+      lootMeesage(doLoot(winner, loser), loser);
+      winner.addExp(loser.dropExp);
     } else {
       winner.acctualHp = winner.maxHp;
     }
@@ -47,27 +49,35 @@ class Fight {
   ///
   /// Generate item
   List<Item> doLoot(Fox hero, Animals loser) {
-    int minChance = loser.loots["min"];
-    int maxChance = loser.loots["max"];
-    int randomChance =
-        minChance + (new Random()).nextInt(maxChance - minChance);
-    return setRandomItem(randomChance, hero);
+    return setRandomItem(hero, loser);
   }
 
-  List<Item> setRandomItem(int chance, Fox hero) {
+  List<Item> setRandomItem(Fox hero, Animals loser) {
+    return getRandomItems(loser.loots, hero.bag);
+  }
+
+  List<Item> getRandomItems(List<Map<String, dynamic>> loots, Inventory bag) {
+    Random rnd = new Random();
     List<Item> items = new List();
-    hero.bag.items.forEach((type, map_items) {
-      map_items.forEach((id, item) {
-        if (item.chance['min'] <= chance && item.chance["max"] >= chance) {
-          items.add(item);
-          item.count += 1;
-        }
-      });
+    int maxDrop = 0;
+    loots.forEach((items) {
+      maxDrop += items["ids"].length;
     });
+
+    maxDrop = rnd.nextInt(maxDrop);
+
+    int currentDrop = 0;
+    while (currentDrop <= maxDrop) {
+      Map<String, dynamic> drop = loots.elementAt(rnd.nextInt(loots.length));
+      int type = drop["type"];
+      int id = drop["ids"].elementAt(rnd.nextInt(drop["ids"].length));
+      items.add(bag.addItemByIds(type, id));
+      currentDrop += 1;
+    }
     return items;
   }
 
-  void lootMeesage(List<Item> items) {
+  void lootMeesage(List<Item> items, Animals loser) {
     String trans(String key) {
       return Language.getTranslation(LanguagesTypes.INVENTORY, key);
     }
@@ -75,6 +85,7 @@ class Fight {
     if (items.length > 0) {
       print('');
       print(trans("{Loot_title}"));
+      print("${trans('{drop_exp_title}')}: ${loser.dropExp}");
       sleep(Duration(seconds: 1));
       items.forEach((item) {
         print(item.tName);

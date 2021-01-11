@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'dart:math';
+
+import 'package:dart_console/dart_console.dart';
 
 import '../animals/Animals.dart';
 import '../animals/Fox.dart';
@@ -61,25 +62,15 @@ class Game {
       Location newLoc = new Location(loc['name']);
       if (loc['animals'] != null) {
         for (var animal in loc['animals']) {
-          if (animal['howMany'] != null) {
-            for (int i = 1; i <= animal['howMany']; i++) {
-              newLoc.addAnimal((Animals()).create(
-                  animal['name'],
-                  animal['maxHp'],
-                  animal['speed'],
-                  animal['strengh'],
-                  animal['defence'],
-                  animal['loot']));
-            }
-          } else {
-            newLoc.addAnimal((Animals()).create(
-                animal['name'],
-                animal['maxHp'],
-                animal['speed'],
-                animal['strengh'],
-                animal['defence'],
-                animal['loot']));
-          }
+          if (animal == null) continue;
+          newLoc.addAnimal((Animals()).create(
+              animal['name'],
+              animal['maxHp'],
+              animal['speed'],
+              animal['strengh'],
+              animal['defence'],
+              animal['drop']["items"],
+              animal["drop"]["exp"]));
         }
       }
       for (var act in loc['actions']) {
@@ -93,7 +84,8 @@ class Game {
 
   /// Universal method to clear console for Windows and Linux
   static void clearConsole() {
-    print("\x1B[2J\x1B[0;0H");
+    final console = Console();
+    console.clearScreen();
   }
 
   static String text_bold(String text) {
@@ -117,6 +109,9 @@ class Game {
     if (load()) {
       hero.changeLocation(locations.firstWhere((loc) => loc.name == '{home}'));
     } else {
+      changeLanguage(isStart: true);
+      hero.energy--;
+      clearConsole();
       print(
           '${Language.getTranslation(LanguagesTypes.ACTIONS, "{Enter your fox name}")}: ');
       String name = stdin.readLineSync();
@@ -127,7 +122,7 @@ class Game {
 
   /// Printing statistic
   static void printStats() {
-    int maxComfort = hero.minMaxComfort.reduce(max);
+    int maxComfort = hero.comfort;
     String name = '${fastStatsTranslate("{name}")}: ${hero.name}';
     String location = '${fastStatsTranslate("{location}")}: ${hero.location}';
     String acctualHpString = "${hero.acctualHp}";
@@ -158,7 +153,17 @@ class Game {
     String energy =
         '${fastStatsTranslate("{energy}")}: ${energyString}/$maxComfort';
 
-    print('$name \t $location');
+    String lvl = fastStatsTranslate("{level}") + ": ${hero.lvl}";
+    String exp = fastStatsTranslate("{experience}") + ": ${hero.exp}";
+    String skill_points = fastStatsTranslate("{skill points}") +
+        ((hero.skill_points > 0
+            ? ": ${Color.cyanBold('${hero.skill_points}')}"
+            : ": ${hero.skill_points}"));
+    String nextlvl = "${hero.nextLvl}";
+
+    print('$name \t $location \t');
+    print('$lvl \t $exp/$nextlvl');
+    print('$skill_points');
     print('$hp \t $strengh \t $defence \t $speed');
     print('$satiety \t $energy');
     print('\n');
@@ -211,8 +216,6 @@ class Game {
     File(saveFilePath).writeAsStringSync(data);
     String bag = hero.getBagToSave();
     File(saveBagPath).writeAsStringSync(bag);
-    String worehouse = hero.getWarehouseToSave();
-    File(saveWorehousePath).writeAsStringSync(worehouse);
     clearConsole();
     print(Language.getTranslation(LanguagesTypes.OPTIONS, "{Game was saved}"));
     print(
@@ -226,9 +229,7 @@ class Game {
       String data = File(saveFilePath).readAsStringSync();
       hero = Fox.loadFromString(data);
       String bag = File(saveBagPath).readAsStringSync();
-      String worehouse = File(saveWorehousePath).readAsStringSync();
       hero.loadBagFromJson(bag);
-      hero.loadWorehouseFromJson(worehouse);
       return true;
     } else {
       return false;
@@ -263,10 +264,11 @@ class Game {
     }
   }
 
-  static void changeLanguage() {
-    printOptions(
-        Language.getTranslation(LanguagesTypes.OPTIONS, '{change language}'),
-        Language.getActive(), (choise) {
+  static void changeLanguage({bool isStart: false}) {
+    String _title = (!isStart
+        ? Language.getTranslation(LanguagesTypes.OPTIONS, '{change language}')
+        : Language.getTranslation(LanguagesTypes.OPTIONS, '{set language}'));
+    printOptions(_title, Language.getActive(), (choise) {
       Language.currentLang = Language.getActive()[choise].name;
       String data = Language.currentLang;
       File(currnetLangPath).writeAsStringSync(data);

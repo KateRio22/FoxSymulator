@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import '../game/Color.dart';
 import '../langs/Language.dart';
 import '../langs/LanguagesTypes.dart';
 import 'Stats.dart';
@@ -8,7 +9,8 @@ class Animals {
   String _name;
   Map<int, int> stats = new Map();
   bool isLive = true;
-  Map<String, int> loots = new Map();
+  List<Map<String, dynamic>> loots = new List();
+  int dropExp;
 
   int get acctualHp {
     return stats[StatsType.ACCTUALHP];
@@ -55,7 +57,7 @@ class Animals {
   }
 
   Animals create(String name, int maxHp, int speed, int strengh, int defence,
-      Map<String, int> loots) {
+      List<Map<String, dynamic>> loots, int dropExp) {
     Animals animal = new Animals();
     animal._name = name;
     animal.maxHp = animal.acctualHp = maxHp;
@@ -63,6 +65,7 @@ class Animals {
     animal.strengh = strengh;
     animal.defence = defence;
     animal.loots = loots;
+    animal.dropExp = dropExp;
     return animal;
   }
 
@@ -95,5 +98,46 @@ class Animals {
       defending.isLive = false;
     }
     return damage;
+  }
+
+  String get hpBar {
+    String bar = Color.cyanBold("[");
+    double maxWidth = 25;
+    double acctualWidth = (((acctualHp / maxHp) * 100) / (100 / maxWidth));
+    String currentHp = "";
+    String spaces = "";
+    if (acctualWidth > 0) {
+      for (int i = 1; i < acctualWidth; i++) {
+        currentHp += "=";
+      }
+    }
+
+    if (currentHp.length < maxWidth) {
+      for (int i = 1; i < maxWidth - currentHp.length; i++) {
+        spaces += " ";
+      }
+    }
+
+    if (acctualWidth <= maxWidth / 4) {
+      currentHp = Color.redBold(currentHp);
+    } else if (acctualWidth <= maxWidth / 2) {
+      currentHp = Color.yellowBold(currentHp);
+    } else {
+      currentHp = Color.greenBold(currentHp);
+    }
+
+    bar += currentHp + spaces;
+    bar += Color.cyanBold("]");
+    return bar;
+  }
+}
+
+class AnimalSpecialName {
+  final String name;
+  AnimalSpecialName(this.name);
+
+  @override
+  String toString() {
+    return this.name;
   }
 }

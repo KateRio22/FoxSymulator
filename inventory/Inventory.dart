@@ -1,19 +1,21 @@
 import '../items/Item.dart';
 
 class Inventory {
-  int owned;
-  final int maxSize;
   // map<type, <id, item>>
   Map<int, Map<int, Item>> items;
 
-  Inventory(this.maxSize) {
-    this.owned = 0;
+  Inventory() {
     this.items = new Map();
   }
 
   addItem(Item item) {
     items.putIfAbsent(item.type, () => {item.id: item});
     items[item.type].putIfAbsent(item.id, () => item);
+  }
+
+  addItemByIds(int type, int id) {
+    items[type][id].count++;
+    return items[type][id];
   }
 
   String toJson() {
