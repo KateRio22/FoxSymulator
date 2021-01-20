@@ -1,5 +1,57 @@
 {
     "missions": [
+        {
+            "id": 3,
+            "required_before_completed_missions_ids": [],
+            "title": "{id_3_title}",
+            "description": "{id_3_des}",
+            "todo": {
+                "has_items": [],
+                "kill": [
+                    {
+                        "key": "Rat",
+                        "count": 5
+                    }
+                ]
+            },
+            "reward": {
+                "exp": 25,
+                "items": [
+                    {
+                        "type": "FOOD",
+                        "id": 0,
+                        "count": 3
+                    }
+                ]
+            }
+        },
+        {
+            "id": 4,
+            "required_before_completed_missions_ids": [
+                3
+            ],
+            "title": "{id_4_title}",
+            "description": "{id_4_des}",
+            "todo": {
+                "has_items": [],
+                "kill": [
+                    {
+                        "key": "normal_dog",
+                        "count": 1
+                    }
+                ]
+            },
+            "reward": {
+                "exp": 50,
+                "items": [
+                    {
+                        "type": "WEAPON",
+                        "id": 1,
+                        "count": 1
+                    }
+                ]
+            }
+        }
         
     ]
 }

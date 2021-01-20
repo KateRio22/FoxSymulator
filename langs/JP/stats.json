@@ -1,10 +1,15 @@
 {
-	"{name}" : "名前",
-	"{location}" : "場所",
+	"{name}" : "Name",
+	"{location}" : "Location",
 	"{HP}" : "HP",
-	"{strengh}" : "強度",
-	"{defence}" : "防衛",
-	"{speed}" : "速度",
-	"{satiety}" : "満腹 感",
-	"{energy}" : "エネルギー"
+	"{strengh}" : "Strengh",
+	"{defence}" : "Defence",
+	"{speed}" : "Speed",
+	"{satiety}" : "Satiety",
+	"{energy}" : "Energy",
+	"{comfort}" : "Comfort",
+	"{experience}" : "Experience",
+	"{level}" : "Level",
+	"{skill points}": "Skill points",
+	"{next_lvl}": "Next"
 }

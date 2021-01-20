@@ -11,6 +11,6 @@ void main() {
 
 void setConsiole() {
   if (Platform.isWindows) {
-    Process.run("chcp", ["65001"]);
+    Process.run("chcp", ["65001"],runInShell: true);
   }
 }
